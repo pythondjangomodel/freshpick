@@ -1,0 +1,7 @@
+{% extends "store/base.html" %}
+{% block title %}Payment failed{% endblock %}
+{% block content %}
+    <h1>Payment verification failed</h1>
+    <p>Something went wrong confirming your payment for order {{ order.order_number }}.</p>
+    <a href="{% url 'store:cart_detail' %}">Back to cart</a>
+{% endblock %}

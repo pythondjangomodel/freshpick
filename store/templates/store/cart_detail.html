@@ -1,0 +1,44 @@
+<!-- store/templates/store/cart_detail.html -->
+{% extends "store/base.html" %}
+{% block title %}Your cart{% endblock %}
+{% block content %}
+    <h1>Your cart</h1>
+
+    {% if cart.items.all %}
+        <table style="width: 100%; border-collapse: collapse;">
+            <tr style="text-align: left; border-bottom: 2px solid #ddd;">
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+                <th></th>
+            </tr>
+            {% for item in cart.items.all %}
+            <tr style="border-bottom: 1px solid #eee;">
+                <td>
+                    {{ item.product.name }}
+                    {% if item.variant %}({{ item.variant.value }}){% endif %}
+                </td>
+                <td>
+                    <form method="post" action="{% url 'store:cart_update' item.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="number" name="quantity" value="{{ item.quantity }}" min="0" style="width: 50px;">
+                        <button type="submit">Update</button>
+                    </form>
+                </td>
+                <td>₹{{ item.subtotal }}</td>
+                <td>
+                    <form method="post" action="{% url 'store:cart_remove' item.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit">Remove</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <h2 style="margin-top: 20px;">Total: ₹{{ cart.total_price }}</h2>
+        <a href="{% url 'store:checkout' %}"><button type="button">Proceed to checkout</button></a>
+    {% else %}
+        <p>Your cart is empty. <a href="{% url 'store:product_list' %}">Go shopping</a>.</p>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,96 @@
+<!-- store/templates/store/order_tracking.html -->
+{% extends "store/base.html" %}
+{% block title %}Track order{% endblock %}
+{% block content %}
+<style>
+    .track-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 24px;
+        margin-bottom: 20px;
+    }
+    .track-card h2 { font-size: 18px; margin: 0 0 14px; }
+    .steps { display: flex; justify-content: space-between; margin: 10px 0 4px; }
+    .step { flex: 1; text-align: center; position: relative; font-size: 13px; color: var(--muted); }
+    .step .dot {
+        width: 22px; height: 22px; border-radius: 50%;
+        background: #E7E2D6; margin: 0 auto 8px;
+        position: relative; z-index: 1;
+    }
+    .step::before {
+        content: ""; position: absolute; top: 10px; left: -50%;
+        width: 100%; height: 2px; background: #E7E2D6;
+    }
+    .step:first-child::before { display: none; }
+    .step.done { color: var(--ink); font-weight: 600; }
+    .step.done .dot { background: var(--accent); }
+    .step.done::before { background: var(--accent); }
+    .detail-row {
+        display: flex; justify-content: space-between;
+        padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-row span:first-child { color: var(--muted); }
+    .cancelled-banner {
+        background: #F7E6E6; color: #A53030;
+        padding: 12px 16px; border-radius: 6px; margin-bottom: 16px; font-weight: 600;
+    }
+</style>
+
+<a href="{% url 'store:order_list' %}">&larr; Back to my orders</a>
+<h1 style="margin-top: 12px;">Track order</h1>
+<p style="color: var(--muted); margin-top: -10px;">Order {{ order.order_number }}</p>
+
+<div class="track-card">
+    <h2>Order progress</h2>
+    {% if order.status == 'cancelled' %}
+        <div class="cancelled-banner">This order was cancelled.</div>
+    {% else %}
+        <div class="steps">
+            {% for step in steps %}
+                <div class="step {% if step.done %}done{% endif %}">
+                    <div class="dot"></div>
+                    {{ step.label }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+<div class="track-card">
+    <h2>Shipment details</h2>
+    {% if shipment %}
+        <div class="detail-row">
+            <span>Courier</span>
+            <span>{{ shipment.courier_name|default:"Not assigned yet" }}</span>
+        </div>
+        <div class="detail-row">
+            <span>Tracking number (AWB)</span>
+            <span>{{ shipment.awb_code|default:"Not assigned yet" }}</span>
+        </div>
+        <div class="detail-row">
+            <span>Shipment status</span>
+            <span>{{ shipment.get_tracking_status_display }}</span>
+        </div>
+        {% if shipment.tracking_url %}
+            <p style="margin-top: 16px;">
+                <a href="{{ shipment.tracking_url }}" target="_blank" rel="noopener" class="btn">Track on courier site</a>
+            </p>
+        {% endif %}
+    {% else %}
+        <p style="color: var(--muted);">
+            Shipment details will appear here once your order is dispatched.
+        </p>
+    {% endif %}
+</div>
+
+<div class="track-card">
+    <h2>Delivering to</h2>
+    <p style="margin: 0; line-height: 1.6;">
+        {{ order.shipping_address.full_name }}<br>
+        {{ order.shipping_address.address_line1 }}<br>
+        {{ order.shipping_address.city }}, {{ order.shipping_address.state }} - {{ order.shipping_address.pincode }}
+    </p>
+</div>
+{% endblock %}

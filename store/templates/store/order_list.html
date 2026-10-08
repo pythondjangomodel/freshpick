@@ -1,0 +1,79 @@
+<!-- store/templates/store/order_list.html -->
+{% extends "store/base.html" %}
+{% block title %}Your orders{% endblock %}
+{% block content %}
+<style>
+    .status-badge {
+        display: inline-block; padding: 4px 12px; border-radius: 999px;
+        font-size: 13px; font-weight: 600; text-transform: capitalize;
+    }
+    .status-pending { background: #F0EDE4; color: #6B7280; }
+    .status-confirmed { background: #E8F0E3; color: #3E6B2E; }
+    .status-shipped { background: #E7EEF7; color: #2C4F8A; }
+    .status-delivered { background: #FBF0DD; color: #A5690F; }
+    .status-cancelled { background: #F7E6E6; color: #A53030; }
+    .order-item-img {
+        width: 44px; height: 44px; object-fit: cover; border-radius: 6px;
+        border: 1px solid #eee; vertical-align: middle; margin-right: 10px;
+    }
+    .order-item-placeholder {
+        width: 44px; height: 44px; border-radius: 6px; background: #eee;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 9px; color: #999; vertical-align: middle; margin-right: 10px;
+    }
+</style>
+
+    <h1>Your orders</h1>
+
+    {% if orders %}
+        {% for order in orders %}
+        <div style="border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+                <div>
+                    <strong>Order {{ order.order_number }}</strong><br>
+                    Placed on {{ order.created_at|date:"d M Y, h:i A" }}
+                </div>
+                <div style="text-align: right;">
+                    <span class="status-badge status-{{ order.status }}">{{ order.get_status_display }}</span><br>
+                    <strong style="display: block; margin-top: 6px;">Total: ₹{{ order.total }}</strong>
+                </div>
+            </div>
+
+            <table style="width: 100%; border-collapse: collapse; margin-top: 12px;">
+                <tr style="text-align: left; border-bottom: 1px solid #eee;">
+                    <th>Product</th>
+                    <th>Qty</th>
+                    <th>Price</th>
+                </tr>
+                {% for item in order.items.all %}
+                <tr>
+                    <td style="padding: 8px 0;">
+                        {% with item.product.images.first as main_image %}
+                            {% if main_image %}
+                                <img src="{{ main_image.image.url }}" alt="{{ item.product.name }}" class="order-item-img">
+                            {% else %}
+                                <span class="order-item-placeholder"></span>
+                            {% endif %}
+                        {% endwith %}
+                        {{ item.product.name }}
+                        {% if item.variant %}({{ item.variant.value }}){% endif %}
+                    </td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ item.subtotal }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+
+            <p style="margin-top: 8px; color: #555;">
+                Shipping to: {{ order.shipping_address.full_name }} — {{ order.shipping_address.city }}, {{ order.shipping_address.pincode }}
+            </p>
+
+            <p style="margin-top: 12px;">
+                <a href="{% url 'store:order_tracking' order.order_number %}" class="btn">Track order</a>
+            </p>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>You haven't placed any orders yet. <a href="{% url 'store:product_list' %}">Start shopping</a>.</p>
+    {% endif %}
+{% endblock %}

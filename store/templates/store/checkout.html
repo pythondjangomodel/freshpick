@@ -1,0 +1,46 @@
+{% extends "store/base.html" %}
+{% block title %}Checkout{% endblock %}
+{% block content %}
+    <h1>Checkout</h1>
+
+    <h2>Order summary</h2>
+    <table>
+        <thead>
+            <tr><th>Product</th><th>Qty</th><th>Subtotal</th></tr>
+        </thead>
+        <tbody>
+            {% for item in cart.items.all %}
+                <tr>
+                    <td>{{ item.product.name }}{% if item.variant %} ({{ item.variant.value }}){% endif %}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>₹{{ item.subtotal }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p><strong>Total: ₹{{ cart.total_price }}</strong></p>
+
+    <h2>Shipping address</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% if addresses %}
+            {% for address in addresses %}
+                <label>
+                    <input type="radio" name="address_id" value="{{ address.id }}" {% if address.is_default %}checked{% endif %}>
+                    {{ address.full_name }} — {{ address.address_line1 }}, {{ address.city }}, {{ address.pincode }}
+                </label><br>
+            {% endfor %}
+            <br>
+            <button type="submit" name="proceed">Continue to payment</button>
+        {% else %}
+            <p>No saved addresses yet — add one below.</p>
+        {% endif %}
+    </form>
+
+    <h3>Add a new address</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" name="add_address">Save address</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends "store/base.html" %}
+{% block title %}Log in{% endblock %}
+{% block content %}
+
+<style>
+    .login-wrap {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+        padding: 40px 20px;
+    }
+
+    .login-wrap::before {
+        content: "";
+        position: absolute;
+        inset: -50%;
+        background: linear-gradient(120deg, #6a5acd, #ff6ec4, #4facfe, #43e97b, #6a5acd);
+        background-size: 400% 400%;
+        animation: gradientShift 12s ease infinite;
+        filter: blur(60px);
+        opacity: 0.55;
+        z-index: 0;
+    }
+
+    @keyframes gradientShift {
+        0%   { background-position: 0% 50%; }
+        50%  { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    .login-card {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        max-width: 380px;
+        background: rgba(255, 255, 255, 0.12);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 20px;
+        padding: 40px 36px;
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+        transform-style: preserve-3d;
+        transition: transform 0.15s ease-out;
+    }
+
+    .login-card h1 {
+        margin: 0 0 6px;
+        font-size: 26px;
+        color: #fff;
+        text-align: center;
+        transform: translateZ(40px);
+    }
+
+    .login-card .subtitle {
+        margin: 0 0 28px;
+        text-align: center;
+        color: rgba(255,255,255,0.75);
+        font-size: 14px;
+        transform: translateZ(30px);
+    }
+
+    .login-card form p {
+        margin: 0 0 18px;
+        transform: translateZ(25px);
+    }
+
+    .login-card form p label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 13px;
+        color: rgba(255,255,255,0.85);
+        letter-spacing: 0.3px;
+    }
+
+    .login-card form p input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.3);
+        background: rgba(255,255,255,0.15);
+        color: #fff;
+        font-size: 14px;
+        outline: none;
+        transition: border 0.2s ease, background 0.2s ease;
+    }
+
+    .login-card form p input::placeholder {
+        color: rgba(255,255,255,0.5);
+    }
+
+    .login-card form p input:focus {
+        border-color: #fff;
+        background: rgba(255,255,255,0.25);
+    }
+
+    .login-card button {
+        width: 100%;
+        padding: 13px;
+        margin-top: 6px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #ff6ec4, #7873f5);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        cursor: pointer;
+        transform: translateZ(35px);
+        box-shadow: 0 10px 25px rgba(120, 115, 245, 0.45);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .login-card button:hover {
+        transform: translateZ(35px) translateY(-2px);
+        box-shadow: 0 14px 30px rgba(120, 115, 245, 0.6);
+    }
+
+    .login-card p.signup-link {
+        margin-top: 22px;
+        text-align: center;
+        font-size: 13px;
+        color: rgba(255,255,255,0.75);
+        transform: translateZ(20px);
+    }
+
+    .login-card p.signup-link a {
+        color: #fff;
+        font-weight: 600;
+        text-decoration: underline;
+    }
+</style>
+
+<div class="login-wrap" id="loginWrap">
+    <div class="login-card" id="loginCard">
+        <h1>Welcome back</h1>
+        <p class="subtitle">Log in to continue shopping</p>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Log in</button>
+        </form>
+
+        <p class="signup-link">No account? <a href="{% url 'store:signup' %}">Sign up</a></p>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var wrap = document.getElementById('loginWrap');
+        var card = document.getElementById('loginCard');
+
+        wrap.addEventListener('mousemove', function (e) {
+            var rect = card.getBoundingClientRect();
+            var x = e.clientX - rect.left;
+            var y = e.clientY - rect.top;
+            var centerX = rect.width / 2;
+            var centerY = rect.height / 2;
+            var rotateX = ((y - centerY) / centerY) * -6;
+            var rotateY = ((x - centerX) / centerX) * 6;
+            card.style.transform = 'perspective(900px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg)';
+        });
+
+        wrap.addEventListener('mouseleave', function () {
+            card.style.transform = 'perspective(900px) rotateX(0deg) rotateY(0deg)';
+        });
+    })();
+</script>
+
+{% endblock %}

@@ -1,0 +1,201 @@
+<!-- store/templates/store/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}My Store{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #1B2A4A;
+            --accent: #E8A23D;
+            --paper: #FAF8F2;
+            --muted: #6B7280;
+            --border: #E7E2D6;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--ink);
+            background: var(--paper);
+        }
+        header {
+            background: var(--ink);
+            color: #fff;
+            padding: 18px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        header a { color: #fff; text-decoration: none; }
+        .logo {
+            font-family: 'Fraunces', serif;
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .search-form { flex: 1; max-width: 420px; }
+        .search-form input {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+        }
+        .nav-links { display: flex; align-items: center; gap: 18px; font-size: 14px; }
+        .nav-links form { display: inline; }
+        .nav-links button {
+            background: none; border: none; color: #fff; font-family: 'Inter', sans-serif;
+            font-size: 14px; cursor: pointer; padding: 0;
+        }
+        main { padding: 32px 28px; max-width: 1100px; margin: 0 auto; }
+        h1 {
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            font-size: 34px;
+            margin: 0 0 20px;
+        }
+        .category-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 28px;
+        }
+        .category-pills a {
+            display: inline-block;
+            padding: 7px 16px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--ink);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .category-pills a.active {
+            background: var(--ink);
+            color: #fff;
+            border-color: var(--ink);
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 22px;
+        }
+        .product-card {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            text-decoration: none;
+            color: var(--ink);
+            display: block;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 24px rgba(27, 42, 74, 0.12);
+        }
+        .product-image-wrap { position: relative; }
+        .product-image-wrap img {
+            width: 100%;
+            height: 170px;
+            object-fit: cover;
+            display: block;
+        }
+        .product-image-placeholder {
+            width: 100%;
+            height: 170px;
+            background: #EFEAE0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-size: 13px;
+        }
+        .category-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(27, 42, 74, 0.85);
+            color: #fff;
+            font-size: 11px;
+            padding: 3px 10px;
+            border-radius: 999px;
+        }
+        .product-info { padding: 14px 16px 16px; }
+        .product-name {
+            font-weight: 600;
+            font-size: 15px;
+            margin: 0 0 4px;
+        }
+        .product-price {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 16px;
+            margin-top: 6px;
+        }
+        button, .btn {
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        /* Django messages (stock warnings, success notices) */
+        .message {
+            padding: 12px 16px;
+            border-radius: 6px;
+            margin-bottom: 14px;
+            font-size: 14px;
+        }
+        .message.error { background: #F7E6E6; color: #A53030; }
+        .message.success { background: #E8F0E3; color: #3E6B2E; }
+        .message.info, .message.warning { background: #FBF0DD; color: #A5690F; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'store:product_list' %}" class="logo">My Store</a>
+
+        <form method="get" action="{% url 'store:product_list' %}" class="search-form">
+            <input type="text" name="q" placeholder="Search products..." value="{{ request.GET.q }}">
+        </form>
+
+        <div class="nav-links">
+            <a href="{% url 'store:cart_detail' %}">Cart</a>
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'store:order_list' %}">My Orders</a>
+                <form method="post" action="{% url 'store:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">Logout</button>
+                </form>
+            {% else %}
+                <a href="{% url 'store:login' %}">Login</a>
+                <a href="{% url 'store:signup' %}">Signup</a>
+            {% endif %}
+        </div>
+    </header>
+    <main>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

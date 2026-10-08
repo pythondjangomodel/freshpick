@@ -1,0 +1,43 @@
+<!-- store/templates/store/product_list.html -->
+{% extends "store/base.html" %}
+{% block title %}Shop{% endblock %}
+{% block content %}
+    <h1>Shop</h1>
+
+    {% if query %}
+        <p style="color: var(--muted); margin-top: -12px; margin-bottom: 20px;">
+            Search results for "<strong style="color: var(--ink);">{{ query }}</strong>" &middot;
+            <a href="{% url 'store:product_list' %}" style="color: var(--ink);">Clear</a>
+        </p>
+    {% endif %}
+
+    <div class="category-pills">
+        <a href="{% url 'store:product_list' %}" class="{% if not active_category %}active{% endif %}">All</a>
+        {% for category in categories %}
+            <a href="?category={{ category.slug }}" class="{% if active_category == category.slug %}active{% endif %}">{{ category.name }}</a>
+        {% endfor %}
+    </div>
+
+    <div class="product-grid">
+        {% for product in products %}
+            <a href="{% url 'store:product_detail' product.slug %}" class="product-card">
+                <div class="product-image-wrap">
+                    {% with product.images.first as main_image %}
+                        {% if main_image %}
+                            <img src="{{ main_image.image.url }}" alt="{{ product.name }}">
+                        {% else %}
+                            <div class="product-image-placeholder">No image</div>
+                        {% endif %}
+                    {% endwith %}
+                    <span class="category-badge">{{ product.category.name }}</span>
+                </div>
+                <div class="product-info">
+                    <p class="product-name">{{ product.name }}</p>
+                    <div class="product-price">₹{{ product.price }}</div>
+                </div>
+            </a>
+        {% empty %}
+            <p>No products found.</p>
+        {% endfor %}
+    </div>
+{% endblock %}
