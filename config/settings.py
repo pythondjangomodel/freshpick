@@ -75,6 +75,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "cloudinary_storage",   # product images on Cloudinary
+    "cloudinary",
     "store",
 ]
 
@@ -156,12 +158,13 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
-# NOTE: On Render, uploaded media (product images) is deleted on every
-# redeploy. Move product images to Cloudinary before going fully live.
 
+# Uploaded files (product images) are stored on Cloudinary, so they are
+# not lost when Render redeploys. Needs CLOUDINARY_URL in .env (laptop)
+# and in Render -> freshpick -> Environment.
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
