@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 (layout, responsive navbar). Our own styles below override its look. -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         :root {
             --ink: #1B2A4A;
@@ -24,20 +26,14 @@
             color: var(--ink);
             background: var(--paper);
         }
-        header {
-            background: var(--ink);
-            color: #fff;
-            padding: 18px 28px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
-        header a { color: #fff; text-decoration: none; }
+        /* ---------- Top navbar (Bootstrap) ---------- */
+        .site-nav { background: var(--ink); padding-top: 14px; padding-bottom: 14px; }
+        .site-nav a { color: #fff; text-decoration: none; }
         .logo {
             font-family: 'Fraunces', serif;
             font-size: 22px;
             font-weight: 600;
+            color: #fff !important;
         }
         .search-form { flex: 1; max-width: 420px; }
         .search-form input {
@@ -49,11 +45,17 @@
             font-size: 14px;
         }
         .nav-links { display: flex; align-items: center; gap: 18px; font-size: 14px; }
-        .nav-links form { display: inline; }
+        .nav-links form { display: inline; margin: 0; }
         .nav-links button {
             background: none; border: none; color: #fff; font-family: 'Inter', sans-serif;
             font-size: 14px; cursor: pointer; padding: 0;
         }
+        .site-nav .navbar-toggler {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 4px 8px;
+        }
+        .site-nav .navbar-toggler:focus { box-shadow: none; }
         main { padding: 32px 28px; max-width: 1100px; margin: 0 auto; }
         h1 {
             font-family: 'Fraunces', serif;
@@ -152,6 +154,12 @@
             text-decoration: none;
             display: inline-block;
         }
+        .btn:hover, .btn:focus, .btn:active, button:hover {
+            background: #2A3D63;
+            color: #fff;
+        }
+        .site-nav .nav-links button:hover,
+        .site-nav .navbar-toggler:hover { background: transparent; }
 
         /* Django messages (stock warnings, success notices) */
         .message {
@@ -163,17 +171,65 @@
         .message.error { background: #F7E6E6; color: #A53030; }
         .message.success { background: #E8F0E3; color: #3E6B2E; }
         .message.info, .message.warning { background: #FBF0DD; color: #A5690F; }
+
+        /* ---------- Product images: same shape on every card ---------- */
+        .product-image-wrap img,
+        .product-image-placeholder {
+            height: auto;
+            aspect-ratio: 4 / 5;
+        }
+
+        /* ---------- Tablets & phones (navbar collapsed) ---------- */
+        @media (max-width: 991.98px) {
+            .search-form { max-width: none; width: 100%; margin: 14px 0 10px; }
+            .nav-links { flex-direction: column; align-items: flex-start; gap: 12px; padding-bottom: 6px; }
+        }
+
+        /* ---------- Phones ---------- */
+        @media (max-width: 575.98px) {
+            main { padding: 18px 14px; }
+            h1 { font-size: 26px; margin-bottom: 14px; }
+
+            /* Category pills: one line, swipe sideways */
+            .category-pills {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 6px;
+                margin-bottom: 18px;
+                scrollbar-width: none;
+            }
+            .category-pills::-webkit-scrollbar { display: none; }
+            .category-pills a { white-space: nowrap; flex: 0 0 auto; font-size: 13px; padding: 6px 14px; }
+
+            /* 2 products per row */
+            .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+            .product-info { padding: 10px 10px 12px; }
+            .product-name { font-size: 13px; line-height: 1.3; }
+            .product-price { font-size: 14px; }
+            .category-badge { font-size: 10px; padding: 2px 8px; top: 8px; left: 8px; max-width: calc(100% - 16px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .product-card:hover { transform: none; }
+        }
     </style>
 </head>
 <body>
     <header>
-        <a href="{% url 'store:product_list' %}" class="logo">My Store</a>
+      <nav class="navbar navbar-expand-lg navbar-dark site-nav">
+        <div class="container-fluid px-3 px-lg-4">
+          <a href="{% url 'store:product_list' %}" class="logo navbar-brand">My Store</a>
 
-        <form method="get" action="{% url 'store:product_list' %}" class="search-form">
-            <input type="text" name="q" placeholder="Search products..." value="{{ request.GET.q }}">
-        </form>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#mainNav" aria-controls="mainNav"
+                  aria-expanded="false" aria-label="Open menu">
+            <span class="navbar-toggler-icon"></span>
+          </button>
 
-        <div class="nav-links">
+          <div class="collapse navbar-collapse justify-content-between gap-lg-4" id="mainNav">
+            <form method="get" action="{% url 'store:product_list' %}" class="search-form mx-lg-auto">
+                <input type="text" name="q" placeholder="Search products..." value="{{ request.GET.q }}">
+            </form>
+
+            <div class="nav-links">
             <a href="{% url 'store:cart_detail' %}">Cart</a>
 
             {% if user.is_authenticated %}
@@ -186,7 +242,10 @@
                 <a href="{% url 'store:login' %}">Login</a>
                 <a href="{% url 'store:signup' %}">Signup</a>
             {% endif %}
+            </div>
+          </div>
         </div>
+      </nav>
     </header>
     <main>
         {% if messages %}
@@ -197,5 +256,8 @@
 
         {% block content %}{% endblock %}
     </main>
+
+    <!-- Bootstrap JS (needed for the phone menu button) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
